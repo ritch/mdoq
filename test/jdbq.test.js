@@ -10,14 +10,14 @@ users.on('all', function(command) {
 describe('db.collection', function(){
   
   it('should create a user', function(done){
-    users.insert(user, done);
+    users.post(user, done);
   })
   
-  it('should find the user', function(done){
+  it('should get the user', function(done){
     users.first(user, done);
   })
   
-  it('should find the first 3 users', function(done){
+  it('should get the first 3 users', function(done){
     users.first(3, function(err, each) {
       err 
         ? done(err);
@@ -30,26 +30,26 @@ describe('db.collection', function(){
     })
   })
   
-  it('should find all users', function(done){
+  it('should get all users', function(done){
     users.all(done);
   })
   
-  it('should find the last page of users', function(done){
+  it('should get the last page of users', function(done){
     users.page(-1, 10).count().all(done);
   })
   
   it('should return a count of all users', function(done){
-    users.find(user).count(function(err, count) {
+    users.get(user).count(function(err, count) {
       expect(count).to.equal(1);
     })
   })
   
-  it('should find a user and modify it', function(done){
-    users.find(user).update({updated: true}, done);
+  it('should get a user and modify it', function(done){
+    users.get(user).put({putd: true}, done);
   })
   
   it('should delete a user by query', function(done){
-    users.remove(user, done);
+    users.del(user, done);
   })
   
 })

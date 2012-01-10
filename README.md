@@ -25,8 +25,8 @@ Then build up your query in a chain
 
     // Delete an image from the zappos api
     zappos
-      .find({styleId: ['123456'], recipe: ['RECIPE_NAME']})
-      .remove(function(err, res) {
+      .get({styleId: ['123456'], recipe: ['RECIPE_NAME']})
+      .del(function(err, res) {
         console.info('goodbye!', res); // {status: 200}
       })
     ;
@@ -43,8 +43,8 @@ Connect, query, and modify MongoDB's with the same API.
       , perPage = 10;
 
     users
-      .find({age: {$gte: 18}})
-      .update({legal: true})
+      .get({age: {$gte: 18}})
+      .put({legal: true})
       .sort('age')
       .page(3, perPage)
       .each(function(user, i) {
@@ -63,7 +63,7 @@ Grab a single user with `.first()`.
 
 Easily add queries as middleware to **connect** or **express** apps.
 
-    app.get('/user/:id', users.first().find, function(req, res) {
+    app.get('/user/:id', users.first().get, function(req, res) {
       res.send(res.users); // 'users' inferred from collection name
     })
 
