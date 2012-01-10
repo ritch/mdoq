@@ -1,9 +1,9 @@
 # JDBQ
 JSON Database Query API
 
-**Problem** When using JSON everywhere, I tend to write the same code over and over to build queries or CRUD operations as JSON objects. Why not modularize this problem into just querying and modifying data and provide an easy way to implement middlewares for the actual execution and storage?
+**Problem** Most sources of JSON data can be expose over HTTP. Even though they can be accessed over the same transport protocol, the actual client interface is usually different or non-existent. Why not modularize this problem into an intuitive HTTP client API that can be adapted for any source of JSON data.
 
-**Solution** A simple, fluent, API for building and executing JSON based query / CRUD objects. Easily pluggable to support HTTP Requests, MongoDB, HTML5 localStorage, Redis, and CouchDB.
+**Solution** A simple, fluent, HTTP compatible API for reading and writing JSON from any source including non-HTTP. Easily pluggable to support **HTTP Requests**, **JSON REST APIs**, **MongoDB**, **HTML5 localStorage**, and **CouchDB**.
 
 
 ## Examples
