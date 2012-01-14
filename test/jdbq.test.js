@@ -1,5 +1,5 @@
-var jdbq = require('../')
-  , db = jdbq.db('jdbq-test')
+var mdoq = require('../')
+  , db = mdoq.db('mdoq-test')
   , users = db.collection('users')
   , user = {email: 'test@test.com'};
 
@@ -45,7 +45,7 @@ describe('db.collection', function(){
   })
   
   it('should get a user and modify it', function(done){
-    users.get(user).put({putd: true}, done);
+    users.get(user).put({updated: true}, done);
   })
   
   it('should delete a user by query', function(done){

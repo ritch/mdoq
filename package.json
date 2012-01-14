@@ -1,11 +1,11 @@
 {
   "author": "Ritchie Martori",
-  "name": "jdbq",
+  "name": "mdoq",
   "description": "JSON Database Query (Layer)",
   "version": "0.1.0",
   "repository": {
     "type": "git",
-    "url": "git://github.com/ritch/jdbq.git"
+    "url": "git://github.com/ritch/mdoq.git"
   },
   "main": "index.js",
   "engines": {

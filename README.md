@@ -1,25 +1,22 @@
-# JDBQ
-JSON Database Query API
+# mdoq
+**m**iddleware for **d**ynamic **o**bject **q**ueries
 
-**Problem** Most sources of JSON data can be expose over HTTP. Even though they can be accessed over the same transport protocol, the actual client interface is usually different or non-existent. Why not modularize this problem into an intuitive HTTP client API that can be adapted for any source of JSON data.
+A **node.js** and **browser** JavaScript library for abstracting the source of your data into a middleware friendly HTTP-like api. Comes bundled with middleware for **HTTP**, and **MongoDB**. Easily extendable for any object oriented data source.
 
-**Solution** A simple, fluent, HTTP compatible API for reading and writing JSON from any source including non-HTTP. Easily pluggable to support **HTTP Requests**, **JSON REST APIs**, **MongoDB**, **HTML5 localStorage**, and **CouchDB**.
+* **HTTP** - *for building complex HTTP requests in **node.js** and the browser*
+* **MongoDB** - *an ORM-free abstraction of the **mongodb-native** **node.js** driver*
 
+## Status: In Development
 
 ## Examples
 
-Two execution and storage middlewares are bundled with **jdbq**
-
-  * **HTTP** - *for building complex HTTP requests in **node.js** and the browser*
-  * **MongoDB** - *an ORM-free abstraction of the **mongodb-native** **node.js** driver*
-
 ### HTTP
 
-Using the http middleware of **jdbq**, you can easily build complex http requests with the same api you use to query your db.
+Using the http middleware of **mdoq**, you can quickly build complex http requests.
 
-Tell **jdbq** you want to use HTTP
+Tell **mdoq** you want to use HTTP
 
-    var zappos = jdbq.use('http://api.zappos.com/image');
+    var zappos = mdoq.use('http://api.zappos.com/image');
 
 Then build up your query in a chain
 
@@ -37,9 +34,9 @@ This will serialize the query string and send the request as you would expect
 
 ### MongoDB
 
-Connect, query, and modify MongoDB's with the same API.
+Connect, query, and modify MongoDB's with the `mongodb` middleware.
 
-    var users = jdbq.use('mongodb://localhost/my-testing-db/users')
+    var users = mdoq.use('mongodb://localhost/my-testing-db/users')
       , perPage = 10;
 
     users
@@ -59,28 +56,157 @@ Grab a single user with `.first()`.
       if(user) {
         console.info(user); // {_id: 1, name: 'john toblerone'}
       }
-    })
+    });
 
-Easily add queries as middleware to **connect** or **express** apps.
+## API
 
-    app.get('/user/:id', users.first().get, function(req, res) {
-      res.send(res.users); // 'users' inferred from collection name
-    })
+All methods in **mdoq** return the current **mdoq** query (think jQuery).
 
-## Status: In Development
+---
 
-### TODO
+### mdoq.use([name], [middleware])
 
-  * Write more tests for more complex queries
-  * Add hooks for layer's to add modifiers and actions (ie: map())
-  * Finalize hook / layer api
-  * Create connect middleware
-  * collection.each support
-  
-### Nice to have
+**name** *String*
 
-  * Cache api, hooks
-  * Simple in memory layer example
-  * CouchDB layer
-  * Browser support (localStorage, SQLite)
-  * EventEmitter support
+The name of the middleware which to define. If a name is provided, the middleware will not be added to the current query. Instead it will be provided to any descendent of the current **mdoq** object.
+
+To enable a middleware defined by name, just include the name of the middleware.
+
+    mdoq.use('mongodb').first({user: 1}, fn);
+
+**middleware** *Function(next)*
+
+Middlewares are a list of modifiers executed in order before or after a request for data is made. The job of a middleware is to modify the current **mdoq** object's request or response and then call `next()`. `next()` can be called with an optional `err` object. This `err` object will be added to the current **mdoq** context.
+
+**returns**
+
+A new or modified **mdoq** object. This can be chained to switch contexts, such as a MongoDB collection or a URL part.
+
+    var db = mdoq.use('mongodb://localhost')
+      , users = db.use('users');
+
+---
+
+## Bundled Middleware
+
+### mdoq.limit(limit, [callback])
+
+**limit** *Number* 
+
+Defaults to `1`, can be overridden by passing a number.
+
+**callback** *Function(err, res)*
+
+Called once the query is complete. The first argument will be null if errors do not exist.
+
+---
+
+### mdoq.page(index, [limit], [callback])
+
+**index** *Number*
+
+Starting page of the query. `index = 0` is the first page.
+
+**limit** *Number* 
+
+Defaults to `16`, can be overridden by passing a number.
+
+**callback** *Function(err, res)*
+
+Called once the operation is complete. The first argument will be null if errors do not exist.
+
+---
+
+### mdoq.first([limit], [callback])
+
+**limit** *Number* 
+
+Defaults to `1`, can be overridden by passing a number.
+
+**callback** *Function(err, res)*
+
+Called once the operation is complete. The first argument will be null if errors do not exist.
+
+---
+
+### mdoq.count([callback])
+
+**callback** *Function(err, res)*
+
+Called once the operation is complete. The first argument will be null if errors do not exist.
+
+The `res` object will contain a `count` property with the length of the results of the query, or operations performed.
+
+---
+
+### mdoq.all([callback])
+
+**callback** *Function(err, res)*
+
+Called once the operation is complete. The first argument will be null if errors do not exist.
+
+Useful if you want to override other modifiers (such as `page`) to include all results.
+
+---
+
+## Bundled Action Middleware
+
+Actions are modifiers that normally end or execute queries.
+
+### mdoq.get([data], [callback])
+
+**data** *Object*
+
+An object containing data to query the source.
+
+**callback** *Function(err, res)*
+
+Called once the query is complete. The first argument will be null if errors do not exist.
+
+---
+
+### mdoq.post([data], [callback])
+
+**data** *Object*
+
+An object containing data to be created or inserted.
+
+**callback** *Function(err, res)*
+
+Called once the query is complete. The first argument will be null if errors do not exist.
+
+---
+
+### mdoq.put([data], [callback]) or mdoq.update([data], [callback])
+
+**data** *Object*
+
+An object containing data to be updated, must contain an identifier.
+
+**callback** *Function(err, res)*
+
+Called once the query is complete. The first argument will be null if errors do not exist.
+
+---
+
+### mdoq.del([data | id], [callback])
+
+**id** *Object*
+
+A unique identifier of any data to be deleted.
+
+**data** *Object*
+
+An object containing data to be deleted, must contain an identifier.
+
+**callback** *Function(err, res)*
+
+Called once the query is complete. The first argument will be null if errors do not exist.
+
+--- 
+
+### mdoq.each([callback])
+
+**callback** *Function(err, item, index)*
+
+Called for each item as it is returned from a query. The first argument will be null if errors do not exist.
