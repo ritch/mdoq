@@ -18,7 +18,7 @@ Tell **mdoq** you want to use HTTP
 
     var zappos = mdoq.use('http://api.zappos.com/image');
 
-Then build up your query in a chain
+Then build up your query (or operation) in a chain
 
     // Delete an image from the zappos api
     zappos
@@ -44,7 +44,7 @@ Connect, query, and modify MongoDB's with the `mongodb` middleware.
       .put({legal: true})
       .sort('age')
       .page(3, perPage)
-      .each(function(user, i) {
+      .each(function(err, user, i) {
         console.info(user.name, 'is', i, 'of', perPage);
       })
     ;
@@ -68,7 +68,7 @@ All methods in **mdoq** return the current **mdoq** query (think jQuery).
 
 **name** *String*
 
-The name of the middleware which to define. If a name is provided, the middleware will not be added to the current query. Instead it will be provided to any descendent of the current **mdoq** object.
+The name of the middleware which to define. If a name is provided, the middleware will not be added to the current `operation`. Instead it will be provided to any descendent of the current **mdoq** object.
 
 To enable a middleware defined by name, just include the name of the middleware.
 
@@ -87,7 +87,7 @@ A new or modified **mdoq** object. This can be chained to switch contexts, such 
 
 ---
 
-## Bundled Middleware
+## Modifiers
 
 ### mdoq.limit(limit, [callback])
 
@@ -97,7 +97,7 @@ Defaults to `1`, can be overridden by passing a number.
 
 **callback** *Function(err, res)*
 
-Called once the query is complete. The first argument will be null if errors do not exist.
+Called once the query or operation is complete. The first argument will be null if errors do not exist.
 
 ---
 
@@ -131,11 +131,15 @@ Called once the operation is complete. The first argument will be null if errors
 
 ### mdoq.count([callback])
 
-**callback** *Function(err, res)*
+**callback** *Function(err, res, count)*
 
-Called once the operation is complete. The first argument will be null if errors do not exist.
+Called once the operation is complete. The first argument will be null if errors do not exist. Also includes a third argument: `count` containing the total number of items affected.
 
-The `res` object will contain a `count` property with the length of the results of the query, or operations performed.
+This method can be called within a chain to ensure the callback includes a count.
+
+    users.page(2, 10).count().get({term: 'shoes'}, function(err, res, count) {
+      console.log(count); // 4 - the number of results returned
+    });
 
 ---
 
@@ -149,9 +153,21 @@ Useful if you want to override other modifiers (such as `page`) to include all r
 
 ---
 
-## Bundled Action Middleware
+## Actions
 
-Actions are modifiers that normally end or execute queries.
+Actions execute operations. The default action of any **mdoq** operation or query is `get()`. Actions can be inferred and executed from modifiers:
+
+    mdoq.use('http://localhost/tasks').page({owner: 'joe'}, 3, 16 function(err, res) {
+      // GET http://localhost/tasks?limit=16&skip=48&owner=joe
+      console.info(res); // the 3rd page of joe's tasks
+    })
+
+Actions can be used to override the defaults. Overrides are useful for interacting with systems that do not use standard conventions such as semi-RESTful APIs.
+
+    mdoq.use('http://bad-api/users').del({name: 'joe'}).post(function(err, res) {
+      // this would have POSTed to the url http://bad-api/users?method=delete
+      console.info(res); // the response from the api
+    })
 
 ### mdoq.get([data], [callback])
 
@@ -173,7 +189,7 @@ An object containing data to be created or inserted.
 
 **callback** *Function(err, res)*
 
-Called once the query is complete. The first argument will be null if errors do not exist.
+Called once the operation is complete. The first argument will be null if errors do not exist.
 
 ---
 
@@ -185,7 +201,7 @@ An object containing data to be updated, must contain an identifier.
 
 **callback** *Function(err, res)*
 
-Called once the query is complete. The first argument will be null if errors do not exist.
+Called once the operation is complete. The first argument will be null if errors do not exist.
 
 ---
 
@@ -201,7 +217,7 @@ An object containing data to be deleted, must contain an identifier.
 
 **callback** *Function(err, res)*
 
-Called once the query is complete. The first argument will be null if errors do not exist.
+Called once the delete is complete. The first argument will be null if errors do not exist.
 
 --- 
 
