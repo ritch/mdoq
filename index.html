@@ -1,0 +1,194 @@
+    <section class="suite">
+      <h1>Middleware</h1>
+      <dl>
+        <section class="suite">
+          <h1>mdoq.use(name | middleware)</h1>
+          <dl>
+            <dt>should create an operation</dt>
+            <dd><pre><code>
+mdoq
+  .use(function(next) {
+    this.currentOperation = this.operation;
+    next();
+  })
+  .use(function(next) {
+    expect(this.operation).to.be.a('object');
+    expect(this.operation).to.equal(this.currentOperation);
+    next();
+  })
+  .get(done)
+;</code></pre></dd>
+            <dt>should add a middleware to the stack</dt>
+            <dd><pre><code>
+mdoq.use(testing).get(function() {
+  expect(this.testing).to.equal(true);
+  done();
+});</code></pre></dd>
+            <dt>should execute an adhoc middleware</dt>
+            <dd><pre><code>
+mdoq
+  .use(function(next) {
+    this.adhoc = true;
+    next();
+  })
+  .get(function() {
+    expect(this.adhoc).to.equal(true);
+    done();
+  })
+;</code></pre></dd>
+            <dt>should be able to add middleware within another middleware</dt>
+            <dd><pre><code>
+mdoq
+  .use(function(next, use) {
+    use(function(next) {
+      done();
+      next();
+    });
+    
+    next();
+  })
+  .get(function() {
+  })
+;</code></pre></dd>
+          </dl>
+        </section>
+      </dl>
+    </section>
+    <section class="suite">
+      <h1>Modifiers</h1>
+      <dl>
+        <section class="suite">
+          <h1>mdoq.limit(limit, [callback])</h1>
+          <dl>
+            <dt>should modify the operations limit</dt>
+            <dd><pre><code>
+simple.limit(3, function(err, res) {
+  expect(this.operation.limit).to.equal(3);
+  done();
+})</code></pre></dd>
+          </dl>
+        </section>
+        <section class="suite">
+          <h1>mdoq.page(index, [limit], [callback])</h1>
+          <dl>
+            <dt>should modify the operations skip and limit</dt>
+            <dd><pre><code>
+simple.page(3, 10, function(err, res) {
+  expect(this.operation.limit).to.equal(10);
+  expect(this.operation.skip).to.equal(30);
+  done();
+})</code></pre></dd>
+          </dl>
+        </section>
+        <section class="suite">
+          <h1>mdoq.first([limit], [callback])</h1>
+          <dl>
+            <dt>should force the operations limit to 1</dt>
+            <dd><pre><code>
+simple.first(function(err, res) {
+  expect(this.operation.limit).to.equal(1);
+  expect(this.operation.one).to.equal(true);
+  done();
+})</code></pre></dd>
+            <dt>should modify the operations limit</dt>
+            <dd><pre><code>
+simple.first(7, function(err, res) {
+  expect(this.operation.limit).to.equal(7);
+  expect(this.operation.first).to.not.equal(true);
+  done();
+})</code></pre></dd>
+          </dl>
+        </section>
+        <section class="suite">
+          <h1>mdoq.count([callback])</h1>
+          <dl>
+            <dt>should set the operations count property to true</dt>
+            <dd><pre><code>
+simple.count().first(function(err, res) {
+  expect(this.operation.count).to.equal(true);
+  done();
+})</code></pre></dd>
+          </dl>
+        </section>
+        <section class="suite">
+          <h1>mdoq.each([callback])</h1>
+          <dl>
+            <dt>should set the operations each property to true</dt>
+            <dd><pre><code>
+simple.each();
+expect(simple.operation.each).to.equal(true);
+done();</code></pre></dd>
+          </dl>
+        </section>
+        <section class="suite">
+          <h1>mdoq.all([callback])</h1>
+          <dl>
+            <dt>should set the operations all property to true</dt>
+            <dd><pre><code>
+simple.all();      
+expect(simple.operation.all).to.equal(true);
+done();</code></pre></dd>
+          </dl>
+        </section>
+      </dl>
+    </section>
+    <section class="suite">
+      <h1>Actions</h1>
+      <dl>
+        <section class="suite">
+          <h1>mdoq.get([data], [callback])</h1>
+          <dl>
+            <dt>should set the operation action to get</dt>
+            <dd><pre><code>
+simple.get(function() {
+  expect(this.operation.action).to.equal('get');
+  done();
+})</code></pre></dd>
+          </dl>
+        </section>
+        <section class="suite">
+          <h1>mdoq.post([data], [callback])</h1>
+          <dl>
+            <dt>should set the operation action to post</dt>
+            <dd><pre><code>
+simple.post(function() {
+  expect(this.operation.action).to.equal('post');
+  done();
+})</code></pre></dd>
+          </dl>
+        </section>
+        <section class="suite">
+          <h1>mdoq.put([data], [callback])</h1>
+          <dl>
+            <dt>should set the operation action to put</dt>
+            <dd><pre><code>
+simple.put(function() {
+  expect(this.operation.action).to.equal('put');
+  done();
+})</code></pre></dd>
+          </dl>
+        </section>
+        <section class="suite">
+          <h1>mdoq.update([data], [callback])</h1>
+          <dl>
+            <dt>should set the operation action to put</dt>
+            <dd><pre><code>
+simple.update(function() {
+  expect(this.operation.action).to.equal('put');
+  done();
+})</code></pre></dd>
+          </dl>
+        </section>
+        <section class="suite">
+          <h1>mdoq.del([data | id], [callback])</h1>
+          <dl>
+            <dt>should set the operation action to del</dt>
+            <dd><pre><code>
+simple.del(function() {
+  expect(this.operation.action).to.equal('del');
+  done();
+})</code></pre></dd>
+          </dl>
+        </section>
+      </dl>
+    </section>

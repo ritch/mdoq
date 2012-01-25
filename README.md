@@ -1,62 +1,23 @@
 # mdoq
 **m**iddleware for **d**ynamic **o**bject **q**ueries
 
-A **node.js** and **browser** JavaScript library for abstracting the source of your data into a middleware friendly HTTP-like api. Comes bundled with middleware for **HTTP**, and **MongoDB**. Easily extendable for any object oriented data source.
+Middleware for data. For **Node.js** and the **browser**.
 
-* **HTTP** - *for building complex HTTP requests in **node.js** and the browser*
-* **MongoDB** - *an ORM-free abstraction of the **mongodb-native** **node.js** driver*
-
-## Status: In Development
-
-## Examples
-
-### HTTP
-
-Using the http middleware of **mdoq**, you can quickly build complex http requests.
-
-Tell **mdoq** you want to use HTTP
-
-    var zappos = mdoq.use('http://api.zappos.com/image');
-
-Then build up your query (or operation) in a chain
-
-    // Delete an image from the zappos api
-    zappos
-      .get({styleId: ['123456'], recipe: ['RECIPE_NAME']})
-      .del(function(err, res) {
-        console.info('goodbye!', res); // {status: 200}
+    mdoq
+      .use(function(next) {
+        // grab some data
+        db.fetch(this.operation.query, next);
       })
-    ;
-
-This will serialize the query string and send the request as you would expect
-
-    DELETE http://api.zappos.com//Image?styleId=["123456"]&recipe=["RECIPE_NAME"]
-
-### MongoDB
-
-Connect, query, and modify MongoDB's with the `mongodb` middleware.
-
-    var users = mdoq.use('mongodb://localhost/my-testing-db/users')
-      , perPage = 10;
-
-    users
-      .get({age: {$gte: 18}})
-      .put({legal: true})
-      .sort('age')
-      .page(3, perPage)
-      .each(function(err, user, i) {
-        console.info(user.name, 'is', i, 'of', perPage);
+      .use(function(next) {
+        // filter it, cache it, etc
+        cache(this.operation, this.res, next);
       })
-    ;
-
-Grab a single user with `.first()`.
-
-    users.first({_id: 1}, function(err, user) {
-      if(err) console.error(err);
-      if(user) {
-        console.info(user); // {_id: 1, name: 'john toblerone'}
-      }
-    });
+      // modify the query
+      .limit(4)
+      // execute with an action
+      .get(function(err, res) {
+        console.info(res); // the requested data
+      })
 
 ## API
 
@@ -64,23 +25,36 @@ All methods in **mdoq** return the current **mdoq** query (think jQuery).
 
 ---
 
-### mdoq.use([name], [middleware])
+### mdoq.use(middleware)
 
-**name** *String*
+**middleware** *Function(next, use)*
 
-The name of the middleware which to define. If a name is provided, the middleware will not be added to the current `operation`. Instead it will be provided to any descendent of the current **mdoq** object.
+Middleware are a functions executed in order they are `use()`d. The job of a middleware is to modify the current **mdoq** object's request or response and then call `next()`. 
 
-To enable a middleware defined by name, just include the name of the middleware.
+**next** *Function(err)*
 
-    mdoq.use('mongodb').first({user: 1}, fn);
+Can be called with an optional `err` object. This `err` object will be added to the current **mdoq** object at `mdoq.err`.
 
-**middleware** *Function(next)*
+**use** *Function(middleware)*
 
-Middlewares are a list of modifiers executed in order before or after a request for data is made. The job of a middleware is to modify the current **mdoq** object's request or response and then call `next()`. `next()` can be called with an optional `err` object. This `err` object will be added to the current **mdoq** context.
+Allows for middleware to add additional middleware in place without creating a new **mdoq** object. Useful for adding middleware in specific `operation` conditions.
+
+    mdoq.use(function(next, use) {
+      if(this.operation.action === 'get') {
+        use(function(next, use) {
+          // called after all other existing middleware are finished
+          if(this.res) {
+            cache(this.res);
+          } else {
+            next(new Error('nothing was found when executing' + this.operation));
+          }
+        })
+      }
+    })
 
 **returns**
 
-A new or modified **mdoq** object. This can be chained to switch contexts, such as a MongoDB collection or a URL part.
+A new **mdoq** object. This can be chained to switch contexts, such as a MongoDB collection or a URL part.
 
     var db = mdoq.use('mongodb://localhost')
       , users = db.use('users');
