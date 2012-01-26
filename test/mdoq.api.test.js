@@ -8,7 +8,28 @@ var testing = function(next) {
   
 describe('Middleware', function(){
 
-  describe('mdoq.use(name | middleware)', function(){
+  describe('mdoq.use(middleware | url)', function(){
+    it('should set the url', function(done){
+      var test = mdoq.use('protocol://host').use('/test');
+      
+      expect(test.url).to.equal('protocol://host/test');
+      done();
+    })
+    
+    it('should still have an operation after executing async middleware', function(done){
+      mdoq
+      .use(function(next) {
+        setTimeout(function() {
+          next();
+        }, 0);
+      })
+      .use(function(next) {
+        expect(this.operation.action).to.equal('get');
+        next();
+      })
+      .get(done);
+    })
+    
     it('should create an operation', function(done){
       mdoq
         .use(function(next) {
@@ -173,9 +194,9 @@ describe('Actions', function(){
   })
   
   describe('mdoq.del([data | id], [callback])', function(){
-    it('should set the operation action to del', function(done){
+    it('should set the operation action to delete', function(done){
       simple.del(function() {
-        expect(this.operation.action).to.equal('del');
+        expect(this.operation.action).to.equal('delete');
         done();
       })
     })

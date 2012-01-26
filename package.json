@@ -1,8 +1,8 @@
 {
   "author": "Ritchie Martori",
   "name": "mdoq",
-  "description": "JSON Database Query (Layer)",
-  "version": "0.1.0",
+  "description": "middleware",
+  "version": "0.6.1",
   "repository": {
     "type": "git",
     "url": "git://github.com/ritch/mdoq.git"

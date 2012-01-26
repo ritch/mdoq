@@ -1,7 +1,6 @@
 # mdoq
-**m**iddleware for **d**ynamic **o**bject **q**ueries
 
-Middleware for data. For **Node.js** and the **browser**.
+Middleware style development for clients. For **Node.js** and the **browser**.
 
     mdoq
       .use(function(next) {
@@ -12,24 +11,65 @@ Middleware for data. For **Node.js** and the **browser**.
         // filter it, cache it, etc
         cache(this.operation, this.res, next);
       })
-      // modify the query
-      .limit(4)
       // execute with an action
       .get(function(err, res) {
         console.info(res); // the requested data
       })
 
+Separate execution order from context for generic middleware.
+
+    function data(next, use) {
+      switch(this.operation.action) {
+        case 'post':
+        case 'put':
+          use(require('my-db-middleware'))
+          use(require('my-cache-middleware'))
+        break;
+        default:
+          use(require('my-cache-middleware'))
+          use(function(next, use) {
+            if(!this.res) use(require('my-db-middleware'))
+            next();
+          })
+        break;
+      }
+    }
+
+    var posts = mdoq.use(data).use('/my-db/posts');
+
+    posts.post({id: 1}, function(err, res) {
+      console.info(res, 'inserted into the db (and cache)');
+    })
+
+    posts.get({id: 1}, function(err, res) {
+      console.info(res, 'retrieved from the cache (or db)');
+    })
+
+## Features
+
+ - Fluent API for complex client operations
+ - Easily support any source of data
+ - Re-use code in **Node.js** and the **browser**
+ - High Test Coverage
+ 
 ## API
 
-All methods in **mdoq** return the current **mdoq** query (think jQuery).
+All methods in **mdoq** return the current **mdoq** object (think jQuery).
 
 ---
 
-### mdoq.use(middleware)
+### mdoq.use(middleware | url)
+
+**url** *String*
+
+A url is the location or relative location to the resource your client is connecting to. Calls to `use()` can be chained to separate context, such as an entire database and a single collection.
+
+    var db = mdoq.use('mongodb://my-host:27015/my-db')
+      , collection = db.use('/my-collection');
 
 **middleware** *Function(next, use)*
 
-Middleware are a functions executed in order they are `use()`d. The job of a middleware is to modify the current **mdoq** object's request or response and then call `next()`. 
+Middleware are functions executed in the order they are `use()`d after an action is executed. The job of a middleware is to modify the current **mdoq** object's `req` or `res` (available via `this.req` or `this.res`) and then call `next()`.
 
 **next** *Function(err)*
 
