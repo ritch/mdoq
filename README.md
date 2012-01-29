@@ -4,19 +4,41 @@ Middleware style development for clients. For **Node.js** and the **browser**.
 
     mdoq
       .use(function(next) {
-        // grab some data
-        db.fetch(this.operation.query, next);
+        // a simple db middleware
+        db[this.operation.action](this.operation.query || this.operation.data, next);
       })
       .use(function(next) {
         // filter it, cache it, etc
         cache(this.operation, this.res, next);
       })
-      // execute with an action
+      // execute with an action (get, post, put, del)
       .get(function(err, res) {
         console.info(res); // the requested data
       })
 
-Separate execution order from context for generic middleware.
+Reuse middleware with different sources of data.
+
+    function notFound(next, use) {
+      if(this.operation.action == 'get')
+        // add during execution
+        use(function(next) {
+          if(!this.res) {
+            this.res = {error: 'not found'};
+          }
+          next();
+        })
+      }
+  
+      next();
+    }
+
+    // twitter api http client
+    var twitter = mdoq.use(require('mdoq-http')).use('https://api.twitter.com').use(notFound);
+
+    // mongodb client
+    var tweets = mdoq.use(require('mdoq-mongodb')).use('/tweets').use(notFound);
+
+Control the execution order of middleware during a request.
 
     function data(next, use) {
       switch(this.operation.action) {
@@ -47,9 +69,12 @@ Separate execution order from context for generic middleware.
 
 ## Features
 
- - Fluent API for complex client operations
+ - Re-use middleware for different data sources
+ - Fluent API for complex client flow control
  - Easily support any source of data
- - Re-use code in **Node.js** and the **browser**
+ - Re-use middleware in **Node.js** and the **browser**
+ - Add middleware during execution
+ - **TODO** Bundled middleware for testing and debugging
  - High Test Coverage
  
 ## API
@@ -171,7 +196,7 @@ Useful if you want to override other modifiers (such as `page`) to include all r
 
 Actions execute operations. The default action of any **mdoq** operation or query is `get()`. Actions can be inferred and executed from modifiers:
 
-    mdoq.use('http://localhost/tasks').page({owner: 'joe'}, 3, 16 function(err, res) {
+    mdoq.use('http://localhost/tasks').page({owner: 'joe'}, 3, 16, function(err, res) {
       // GET http://localhost/tasks?limit=16&skip=48&owner=joe
       console.info(res); // the 3rd page of joe's tasks
     })
