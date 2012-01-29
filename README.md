@@ -5,11 +5,11 @@ Middleware style development for clients. For **Node.js** and the **browser**.
     mdoq
       .use(function(next) {
         // a simple db middleware
-        db[this.operation.action](this.operation.query || this.operation.data, next);
+        db[this.req.action](this.req.query || this.req.data, next);
       })
       .use(function(next) {
         // filter it, cache it, etc
-        cache(this.operation, this.res, next);
+        cache(this.req, this.res, next);
       })
       // execute with an action (get, post, put, del)
       .get(function(err, res) {
@@ -19,7 +19,7 @@ Middleware style development for clients. For **Node.js** and the **browser**.
 Reuse middleware with different sources of data.
 
     function notFound(next, use) {
-      if(this.operation.action == 'get')
+      if(this.req.action == 'get')
         // add during execution
         use(function(next) {
           if(!this.res) {
@@ -41,7 +41,7 @@ Reuse middleware with different sources of data.
 Control the execution order of middleware during a request.
 
     function data(next, use) {
-      switch(this.operation.action) {
+      switch(this.req.action) {
         case 'post':
         case 'put':
           use(require('my-db-middleware'))
@@ -102,16 +102,16 @@ Can be called with an optional `err` object. This `err` object will be added to 
 
 **use** *Function(middleware)*
 
-Allows for middleware to add additional middleware in place without creating a new **mdoq** object. Useful for adding middleware in specific `operation` conditions.
+Allows for middleware to add additional middleware in place without creating a new **mdoq** object. Useful for adding middleware in specific `req` conditions.
 
     mdoq.use(function(next, use) {
-      if(this.operation.action === 'get') {
+      if(this.req.action === 'get') {
         use(function(next, use) {
           // called after all other existing middleware are finished
           if(this.res) {
             cache(this.res);
           } else {
-            next(new Error('nothing was found when executing' + this.operation));
+            next(new Error('nothing was found when executing' + this.req));
           }
         })
       }
@@ -136,7 +136,7 @@ Defaults to `1`, can be overridden by passing a number.
 
 **callback** *Function(err, res)*
 
-Called once the query or operation is complete. The first argument will be null if errors do not exist.
+Called once the query or req is complete. The first argument will be null if errors do not exist.
 
 ---
 
@@ -152,7 +152,7 @@ Defaults to `16`, can be overridden by passing a number.
 
 **callback** *Function(err, res)*
 
-Called once the operation is complete. The first argument will be null if errors do not exist.
+Called once the req is complete. The first argument will be null if errors do not exist.
 
 ---
 
@@ -164,7 +164,7 @@ Defaults to `1`, can be overridden by passing a number.
 
 **callback** *Function(err, res)*
 
-Called once the operation is complete. The first argument will be null if errors do not exist.
+Called once the req is complete. The first argument will be null if errors do not exist.
 
 ---
 
@@ -172,7 +172,7 @@ Called once the operation is complete. The first argument will be null if errors
 
 **callback** *Function(err, res, count)*
 
-Called once the operation is complete. The first argument will be null if errors do not exist. Also includes a third argument: `count` containing the total number of items affected.
+Called once the req is complete. The first argument will be null if errors do not exist. Also includes a third argument: `count` containing the total number of items affected.
 
 This method can be called within a chain to ensure the callback includes a count.
 
@@ -186,7 +186,7 @@ This method can be called within a chain to ensure the callback includes a count
 
 **callback** *Function(err, res)*
 
-Called once the operation is complete. The first argument will be null if errors do not exist.
+Called once the req is complete. The first argument will be null if errors do not exist.
 
 Useful if you want to override other modifiers (such as `page`) to include all results.
 
@@ -194,7 +194,7 @@ Useful if you want to override other modifiers (such as `page`) to include all r
 
 ## Actions
 
-Actions execute operations. The default action of any **mdoq** operation or query is `get()`. Actions can be inferred and executed from modifiers:
+Actions execute reqs. The default action of any **mdoq** req or query is `get()`. Actions can be inferred and executed from modifiers:
 
     mdoq.use('http://localhost/tasks').page({owner: 'joe'}, 3, 16, function(err, res) {
       // GET http://localhost/tasks?limit=16&skip=48&owner=joe
@@ -228,7 +228,7 @@ An object containing data to be created or inserted.
 
 **callback** *Function(err, res)*
 
-Called once the operation is complete. The first argument will be null if errors do not exist.
+Called once the req is complete. The first argument will be null if errors do not exist.
 
 ---
 
@@ -240,7 +240,7 @@ An object containing data to be updated, must contain an identifier.
 
 **callback** *Function(err, res)*
 
-Called once the operation is complete. The first argument will be null if errors do not exist.
+Called once the req is complete. The first argument will be null if errors do not exist.
 
 ---
 

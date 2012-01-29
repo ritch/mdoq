@@ -16,7 +16,7 @@ describe('Middleware', function(){
       done();
     })
     
-    it('should still have an operation after executing async middleware', function(done){
+    it('should still have an req after executing async middleware', function(done){
       mdoq
       .use(function(next) {
         setTimeout(function() {
@@ -24,21 +24,21 @@ describe('Middleware', function(){
         }, 0);
       })
       .use(function(next) {
-        expect(this.operation.action).to.equal('get');
+        expect(this.req.action).to.equal('get');
         next();
       })
       .get(done);
     })
     
-    it('should create an operation', function(done){
+    it('should create an req', function(done){
       mdoq
         .use(function(next) {
-          this.currentOperation = this.operation;
+          this.currentreq = this.req;
           next();
         })
         .use(function(next) {
-          expect(this.operation).to.be.a('object');
-          expect(this.operation).to.equal(this.currentOperation);
+          expect(this.req).to.be.a('object');
+          expect(this.req).to.equal(this.currentreq);
           next();
         })
         .get(done)
@@ -89,63 +89,63 @@ var simple = mdoq.use(function(next) {
     });
   
   describe('mdoq.limit(limit, [callback])', function(){
-    it('should modify the operations limit', function(done){
+    it('should modify the reqs limit', function(done){
       simple.limit(3, function(err, res) {
-        expect(this.operation.limit).to.equal(3);
+        expect(this.req.limit).to.equal(3);
         done();
       })
     })
   })
   
   describe('mdoq.page(index, [limit], [callback])', function(){
-    it('should modify the operations skip and limit', function(done){
+    it('should modify the reqs skip and limit', function(done){
       simple.page(3, 10, function(err, res) {
-        expect(this.operation.limit).to.equal(10);
-        expect(this.operation.skip).to.equal(30);
+        expect(this.req.limit).to.equal(10);
+        expect(this.req.skip).to.equal(30);
         done();
       })
     })
   })
   
   describe('mdoq.first([limit], [callback])', function(){
-    it('should force the operations limit to 1', function(done){
+    it('should force the reqs limit to 1', function(done){
       simple.first(function(err, res) {
-        expect(this.operation.limit).to.equal(1);
-        expect(this.operation.one).to.equal(true);
+        expect(this.req.limit).to.equal(1);
+        expect(this.req.one).to.equal(true);
         done();
       })
     })
     
-    it('should modify the operations limit', function(done){
+    it('should modify the reqs limit', function(done){
       simple.first(7, function(err, res) {
-        expect(this.operation.limit).to.equal(7);
-        expect(this.operation.first).to.not.equal(true);
+        expect(this.req.limit).to.equal(7);
+        expect(this.req.first).to.not.equal(true);
         done();
       })
     })
   })
   
   describe('mdoq.count([callback])', function(){
-    it('should set the operations count property to true', function(done){
+    it('should set the reqs count property to true', function(done){
       simple.count().first(function(err, res) {
-        expect(this.operation.count).to.equal(true);
+        expect(this.req.count).to.equal(true);
         done();
       })
     })
   })
   
   describe('mdoq.each([callback])', function(){
-    it('should set the operations each property to true', function(done){
+    it('should set the reqs each property to true', function(done){
       simple.each();
-      expect(simple.operation.each).to.equal(true);
+      expect(simple.req.each).to.equal(true);
       done();
     })
   })
   
   describe('mdoq.all([callback])', function(){
-    it('should set the operations all property to true', function(done){
+    it('should set the reqs all property to true', function(done){
       simple.all();      
-      expect(simple.operation.all).to.equal(true);
+      expect(simple.req.all).to.equal(true);
       done();
     })
   })
@@ -158,45 +158,45 @@ describe('Actions', function(){
       });
       
   describe('mdoq.get([data], [callback])', function(){
-    it('should set the operation action to get', function(done){
+    it('should set the req action to get', function(done){
       simple.get(function() {
-        expect(this.operation.action).to.equal('get');
+        expect(this.req.action).to.equal('get');
         done();
       })
     })
   })
   
   describe('mdoq.post([data], [callback])', function(){
-    it('should set the operation action to post', function(done){
+    it('should set the req action to post', function(done){
       simple.post(function() {
-        expect(this.operation.action).to.equal('post');
+        expect(this.req.action).to.equal('post');
         done();
       })
     })
   })
   
   describe('mdoq.put([data], [callback])', function(){
-    it('should set the operation action to put', function(done){
+    it('should set the req action to put', function(done){
       simple.put(function() {
-        expect(this.operation.action).to.equal('put');
+        expect(this.req.action).to.equal('put');
         done();
       })
     })
   })
   
   describe('mdoq.update([data], [callback])', function(){
-    it('should set the operation action to put', function(done){
+    it('should set the req action to put', function(done){
       simple.update(function() {
-        expect(this.operation.action).to.equal('put');
+        expect(this.req.action).to.equal('put');
         done();
       })
     })
   })
   
   describe('mdoq.del([data | id], [callback])', function(){
-    it('should set the operation action to delete', function(done){
+    it('should set the req action to delete', function(done){
       simple.del(function() {
-        expect(this.operation.action).to.equal('delete');
+        expect(this.req.action).to.equal('delete');
         done();
       })
     })

@@ -44,7 +44,7 @@ describe('Faux Data Source Middleware', function(){
     mdoq
       .use(require('../lib/debug'))
       .use(function(next) {
-        this.operation.query = 'a bad query';
+        this.req.query = 'a bad query';
         next();
       })
       .use(require('../lib/faux'))
