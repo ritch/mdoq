@@ -1,7 +1,7 @@
 var mdoq = require('../')
   , expect = require('chai').expect;
   
-var testing = function(next) {
+var testing = function(req, res, next) {
   this.testing = true;
   next();
 };
@@ -18,12 +18,12 @@ describe('Middleware', function(){
     
     it('should still have an req after executing async middleware', function(done){
       mdoq
-      .use(function(next) {
+      .use(function(req, res, next) {
         setTimeout(function() {
           next();
         }, 0);
       })
-      .use(function(next) {
+      .use(function(req, res, next) {
         expect(this.req.action).to.equal('get');
         next();
       })
@@ -32,11 +32,11 @@ describe('Middleware', function(){
     
     it('should create an req', function(done){
       mdoq
-        .use(function(next) {
+        .use(function(req, res, next) {
           this.currentreq = this.req;
           next();
         })
-        .use(function(next) {
+        .use(function(req, res, next) {
           expect(this.req).to.be.a('object');
           expect(this.req).to.equal(this.currentreq);
           next();
@@ -54,7 +54,7 @@ describe('Middleware', function(){
     
     it('should execute an adhoc middleware', function(done){
       mdoq
-        .use(function(next) {
+        .use(function(req, res, next) {
           this.adhoc = true;
           next();
         })
@@ -67,8 +67,8 @@ describe('Middleware', function(){
     
     it('should be able to add middleware within another middleware', function(done){
       mdoq
-        .use(function(next, use) {
-          use(function(next) {
+        .use(function(req, res, next, use) {
+          use(function(req, res, next) {
             done();
             next();
           });
@@ -84,7 +84,7 @@ describe('Middleware', function(){
 
 describe('Modifiers', function(){
 
-var simple = mdoq.use(function(next) {
+var simple = mdoq.use(function(req, res, next) {
       next();
     });
   
@@ -153,7 +153,7 @@ var simple = mdoq.use(function(next) {
 })
 
 describe('Actions', function(){
-  var simple = mdoq.use(function(next) {
+  var simple = mdoq.use(function(req, res, next) {
         next();
       });
       

@@ -1,29 +1,15 @@
 # mdoq
 
-Middleware style development for clients. For **Node.js** and the **browser**.
-
-    mdoq
-      .use(function(next) {
-        // a simple db middleware
-        db[this.req.action](this.req.query || this.req.data, next);
-      })
-      .use(function(next) {
-        // filter it, cache it, etc
-        cache(this.req, this.res, next);
-      })
-      // execute with an action (get, post, put, del)
-      .get(function(err, res) {
-        console.info(res); // the requested data
-      })
+**mdoq** simplifies accessing and combining data by providing an HTTP style middleware implementation for **Node.js** and **browser** clients.
 
 Reuse middleware with different sources of data.
 
-    function notFound(next, use) {
-      if(this.req.action == 'get')
+    function notFound(req, res, next, use) {
+      if(req.action == 'get')
         // add during execution
-        use(function(next) {
-          if(!this.res) {
-            this.res = {error: 'not found'};
+        use(function(req, res, next) {
+          if(!res) {
+            next(new Error('not found');
           }
           next();
         })
@@ -40,7 +26,7 @@ Reuse middleware with different sources of data.
 
 Control the execution order of middleware during a request.
 
-    function data(next, use) {
+    function data(req, res, next, use) {
       switch(this.req.action) {
         case 'post':
         case 'put':
@@ -49,7 +35,7 @@ Control the execution order of middleware during a request.
         break;
         default:
           use(require('my-cache-middleware'))
-          use(function(next, use) {
+          use(function(req, res, next, use) {
             if(!this.res) use(require('my-db-middleware'))
             next();
           })
@@ -92,7 +78,7 @@ A url is the location or relative location to the resource your client is connec
     var db = mdoq.use('mongodb://my-host:27015/my-db')
       , collection = db.use('/my-collection');
 
-**middleware** *Function(next, use)*
+**middleware** *Function(req, res, next, use)*
 
 Middleware are functions executed in the order they are `use()`d after an action is executed. The job of a middleware is to modify the current **mdoq** object's `req` or `res` (available via `this.req` or `this.res`) and then call `next()`.
 
@@ -104,9 +90,9 @@ Can be called with an optional `err` object. This `err` object will be added to 
 
 Allows for middleware to add additional middleware in place without creating a new **mdoq** object. Useful for adding middleware in specific `req` conditions.
 
-    mdoq.use(function(next, use) {
+    mdoq.use(function(req, res, next, use) {
       if(this.req.action === 'get') {
-        use(function(next, use) {
+        use(function(req, res, next, use) {
           // called after all other existing middleware are finished
           if(this.res) {
             cache(this.res);
