@@ -1,1 +1,1 @@
-module.exports = require('./lib/mdoq');
+module.exports = require('./lib/mdoq.js');

@@ -24,7 +24,7 @@ describe('Middleware', function(){
         }, 0);
       })
       .use(function(req, res, next) {
-        expect(this.req.action).to.equal('get');
+        expect(this.req.method).to.equal('GET');
         next();
       })
       .get(done);
@@ -82,121 +82,51 @@ describe('Middleware', function(){
   })
 })
 
-describe('Modifiers', function(){
-
-var simple = mdoq.use(function(req, res, next) {
-      next();
-    });
-  
-  describe('mdoq.limit(limit, [callback])', function(){
-    it('should modify the reqs limit', function(done){
-      simple.limit(3, function(err, res) {
-        expect(this.req.limit).to.equal(3);
-        done();
-      })
-    })
-  })
-  
-  describe('mdoq.page(index, [limit], [callback])', function(){
-    it('should modify the reqs skip and limit', function(done){
-      simple.page(3, 10, function(err, res) {
-        expect(this.req.limit).to.equal(10);
-        expect(this.req.skip).to.equal(30);
-        done();
-      })
-    })
-  })
-  
-  describe('mdoq.first([limit], [callback])', function(){
-    it('should force the reqs limit to 1', function(done){
-      simple.first(function(err, res) {
-        expect(this.req.limit).to.equal(1);
-        expect(this.req.one).to.equal(true);
-        done();
-      })
-    })
-    
-    it('should modify the reqs limit', function(done){
-      simple.first(7, function(err, res) {
-        expect(this.req.limit).to.equal(7);
-        expect(this.req.first).to.not.equal(true);
-        done();
-      })
-    })
-  })
-  
-  describe('mdoq.count([callback])', function(){
-    it('should set the reqs count property to true', function(done){
-      simple.count().first(function(err, res) {
-        expect(this.req.count).to.equal(true);
-        done();
-      })
-    })
-  })
-  
-  describe('mdoq.each([callback])', function(){
-    it('should set the reqs each property to true', function(done){
-      simple.each();
-      expect(simple.req.each).to.equal(true);
-      done();
-    })
-  })
-  
-  describe('mdoq.all([callback])', function(){
-    it('should set the reqs all property to true', function(done){
-      simple.all();      
-      expect(simple.req.all).to.equal(true);
-      done();
-    })
-  })
-  
-})
-
 describe('Actions', function(){
   var simple = mdoq.use(function(req, res, next) {
         next();
       });
       
   describe('mdoq.get([data], [callback])', function(){
-    it('should set the req action to get', function(done){
+    it('should set the req method to get', function(done){
       simple.get(function() {
-        expect(this.req.action).to.equal('get');
+        expect(this.req.method).to.equal('GET');
         done();
       })
     })
   })
   
   describe('mdoq.post([data], [callback])', function(){
-    it('should set the req action to post', function(done){
+    it('should set the req method to post', function(done){
       simple.post(function() {
-        expect(this.req.action).to.equal('post');
+        expect(this.req.method).to.equal('POST');
         done();
       })
     })
   })
   
   describe('mdoq.put([data], [callback])', function(){
-    it('should set the req action to put', function(done){
+    it('should set the req method to put', function(done){
       simple.put(function() {
-        expect(this.req.action).to.equal('put');
+        expect(this.req.method).to.equal('PUT');
         done();
       })
     })
   })
   
   describe('mdoq.update([data], [callback])', function(){
-    it('should set the req action to put', function(done){
+    it('should set the req method to put', function(done){
       simple.update(function() {
-        expect(this.req.action).to.equal('put');
+        expect(this.req.method).to.equal('PUT');
         done();
       })
     })
   })
   
   describe('mdoq.del([data | id], [callback])', function(){
-    it('should set the req action to delete', function(done){
+    it('should set the req method to delete', function(done){
       simple.del(function() {
-        expect(this.req.action).to.equal('delete');
+        expect(this.req.method).to.equal('DELETE');
         done();
       })
     })

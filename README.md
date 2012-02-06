@@ -5,7 +5,7 @@
 Reuse middleware with different sources of data.
 
     function notFound(req, res, next, use) {
-      if(req.action == 'get')
+      if(req.method == 'get')
         // add during execution
         use(function(req, res, next) {
           if(!res) {
@@ -27,7 +27,7 @@ Reuse middleware with different sources of data.
 Control the execution order of middleware during a request.
 
     function data(req, res, next, use) {
-      switch(this.req.action) {
+      switch(this.req.method) {
         case 'post':
         case 'put':
           use(require('my-db-middleware'))
@@ -80,7 +80,7 @@ A url is the location or relative location to the resource your client is connec
 
 **middleware** *Function(req, res, next, use)*
 
-Middleware are functions executed in the order they are `use()`d after an action is executed. The job of a middleware is to modify the current **mdoq** object's `req` or `res` (available via `this.req` or `this.res`) and then call `next()`.
+Middleware are functions executed in the order they are `use()`d after an method is executed. The job of a middleware is to modify the current **mdoq** object's `req` or `res` (available via `this.req` or `this.res`) and then call `next()`.
 
 **next** *Function(err)*
 
@@ -91,7 +91,7 @@ Can be called with an optional `err` object. This `err` object will be added to 
 Allows for middleware to add additional middleware in place without creating a new **mdoq** object. Useful for adding middleware in specific `req` conditions.
 
     mdoq.use(function(req, res, next, use) {
-      if(this.req.action === 'get') {
+      if(this.req.method === 'get') {
         use(function(req, res, next, use) {
           // called after all other existing middleware are finished
           if(this.res) {
@@ -180,7 +180,7 @@ Useful if you want to override other modifiers (such as `page`) to include all r
 
 ## Actions
 
-Actions execute reqs. The default action of any **mdoq** req or query is `get()`. Actions can be inferred and executed from modifiers:
+Actions execute reqs. The default method of any **mdoq** req or query is `get()`. Actions can be inferred and executed from modifiers:
 
     mdoq.use('http://localhost/tasks').page({owner: 'joe'}, 3, 16, function(err, res) {
       // GET http://localhost/tasks?limit=16&skip=48&owner=joe
