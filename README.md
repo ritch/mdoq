@@ -1,7 +1,6 @@
 # mdoq
 
 Build and execute stacks of **connect**, **express**, and **FlatIron** style middleware in **Node.js** and the **browser**.
-<<<<<<< HEAD
 
 ## Problem
 
@@ -20,28 +19,7 @@ Usually the solution looks a lot like this:
 Now you can "provide" data to the request in, for example, an express route.
 
     var articleProvider = new ArticleProvider();
-
-=======
-
-## Problem
-
-I have a source of data (a database, a REST api, etc) and I have a request for data.
-
-## Typical Solution (wtf?)
-
-Usually the solution looks a lot like this:
-
-    ArticleProvider.prototype.findAll = function(callback) {
-      this.db.collection('articles', function(error, article_collection) {
-        // ... and so on ... http://howtonode.org/express-mongodb
-      });
-    };
-
-Now you can "provide" data to the request in, for example, an express route.
-
-    var articleProvider = new ArticleProvider();
-
->>>>>>> 5103d308e9a64933c5f7e2b0ad4109d74d78eec8
+    
     app.get('/articles', function(req, res){
       articleProvider.findAll(function(err, docs){
         // and respond ...
@@ -50,7 +28,7 @@ Now you can "provide" data to the request in, for example, an express route.
 
 ## Example Solution
 
-Instead of reinventing the interface (eg. ArticleProvider), proxy and filter data with **mdoq**.
+Instead of reinventing the interface (eg. ArticleProvider), proxy and filter data over the existing http interface with **mdoq**.
 
     var articles = mdoq.require('mdoq-mongodb').use('/articles');
 
@@ -62,7 +40,7 @@ Instead of reinventing the interface (eg. ArticleProvider), proxy and filter dat
       console.log(res) // articles by joe bob
     });
 
-Instead of inventing an interface for each source of data, re-use **mdoq** to filter and pipe data wherever we need it to go.
+Re-use **mdoq** middleware to filter and pipe data between sources.
 
     var articles = mdoq.require('mdoq-mongodb').use('/articles')
       , feed = mdoq.require('mdoq-http').use('http://articles.com/feed.json');
