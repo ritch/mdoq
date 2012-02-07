@@ -1,6 +1,7 @@
 # mdoq
 
 Build and execute stacks of **connect**, **express**, and **FlatIron** style middleware in **Node.js** and the **browser**.
+<<<<<<< HEAD
 
 ## Problem
 
@@ -20,6 +21,27 @@ Now you can "provide" data to the request in, for example, an express route.
 
     var articleProvider = new ArticleProvider();
 
+=======
+
+## Problem
+
+I have a source of data (a database, a REST api, etc) and I have a request for data.
+
+## Typical Solution (wtf?)
+
+Usually the solution looks a lot like this:
+
+    ArticleProvider.prototype.findAll = function(callback) {
+      this.db.collection('articles', function(error, article_collection) {
+        // ... and so on ... http://howtonode.org/express-mongodb
+      });
+    };
+
+Now you can "provide" data to the request in, for example, an express route.
+
+    var articleProvider = new ArticleProvider();
+
+>>>>>>> 5103d308e9a64933c5f7e2b0ad4109d74d78eec8
     app.get('/articles', function(req, res){
       articleProvider.findAll(function(err, docs){
         // and respond ...
