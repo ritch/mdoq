@@ -6,7 +6,7 @@ Build and execute stacks of **connect**, **express**, and **FlatIron** style mid
 
 I have a source of data (a database, a REST api, etc) and I have a request for data.
 
-## Typical Solution (wtf?)
+## Typical Solution
 
 Usually the solution looks a lot like this:
 
@@ -217,6 +217,20 @@ An object containing any error information. `err` will be undefined if an error 
 **res** *Object*
 
 An object containing the `res.body`.
+
+---
+
+### mdoq.proxy()
+
+**returns** *MiddlewareFunction(req, res, next, use)*
+
+A function that wraps all the current middleware. Useful for proxying data between servers and clients.
+
+    var app = require('express').createServer();
+      , db = mdoq.require('mdoq-mongodb')
+      , users = db.use('/users');
+      
+    app.get('/users', users.proxy());
 
 ---
 
