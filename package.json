@@ -2,7 +2,7 @@
   "author": "Ritchie Martori",
   "name": "mdoq",
   "description": "Middleware style development for clients",
-  "version": "0.7.4",
+  "version": "0.7.5",
   "repository": {
     "type": "git",
     "url": "git://github.com/ritch/mdoq.git"
