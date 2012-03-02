@@ -91,6 +91,7 @@ describe('Actions', function(){
     it('should set the req method to get', function(done){
       simple.get(function() {
         expect(this.req.method).to.equal('GET');
+        expect(this.res.status).to.equal(200);
         done();
       })
     })

@@ -208,15 +208,15 @@ An object containing data to be deleted, must contain an identifier.
 
 ---
 
-### ResponseFunction(err, res)
+### ResponseFunction(err, body, res, req)
 
 **err** *Object*
 
 An object containing any error information. `err` will be undefined if an error did not occur.
 
-**res** *Object*
+**data** *Object*
 
-An object containing the `res.body`.
+An object containing the `res.body` or `res.data`.
 
 ---
 
