@@ -17,13 +17,19 @@ var testData = {
 
 var faux = mdoq.use(function (req, res, next) {
   res.data = testData;
+  
+  // return posted data (if any)
+  if(req.data && Object.keys(req.data).length) {
+    res.data = req.data;
+  }
+  
   next();
 });
 
 describe('Proxy Server', function(){
   it('should listen', function(done) {
-    var app = express.createServer();
-    app.get('/test', faux.proxy());
+    var app = express.createServer(express.bodyParser());
+    app.all('/test', faux.proxy());
 
     app.on('listening', function () {
       done();
@@ -37,6 +43,16 @@ describe('Proxying', function(){
   it('should return the test data', function(done) {
     http.use('/test').get(function (err, res) {
       expect(res).to.eql(testData);
+      done(err);
+    })
+  })
+  
+  it('should return the posted test data', function(done) {
+    var tdata = {foo:'bar', bat: 'baz'};
+    
+    http.use('/test').post(tdata, function (err, res) {
+      expect(res).to.eql(tdata);
+      
       done(err);
     })
   })
