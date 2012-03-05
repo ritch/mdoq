@@ -108,6 +108,28 @@ Middleware is not bundled. Instead middleware is built separately as independent
  - **[debug](https://github.com/ritch/mdoq/blob/master/lib/debug.js)** - trace out http information such as **url**, **response**, **duration**, and **errors**
  - **[faux](https://github.com/ritch/mdoq/blob/master/lib/faux.js)** - test new middleware implementations against a faux datasource
 
+## Modifiers
+
+Middleware may expose functions that will patch **mdoq**'s api. This is useful for methods that should only be included in the api once a middleware is added.
+
+The **[mongodb](https://github.com/ritch/mdoq-mongodb)** middleware uses this to add methods such as `first()`.
+
+    // example middleware
+    function middleware(req, res, next) {
+      // modify the req and or res and call next with any errors
+      next();
+    }
+    
+    // add a modifier that will patch the current mdoq context
+    middleware.example = function(str, num, etc) {
+      console.info(this); // the currently executing mdoq context
+      console.info(this.req);
+      console.info(this.res);
+      
+      // always return this
+      return this;
+    }
+
 ## API
 
 All methods in **mdoq** return an **mdoq** object (think jQuery).

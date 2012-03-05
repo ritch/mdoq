@@ -1,10 +1,17 @@
 var mdoq = require('../')
   , expect = require('chai').expect;
   
+// middleware
 var testing = function(req, res, next) {
   this.testing = true;
   next();
 };
+
+// modifier
+testing.modify = function (num) {
+  this.num = num;
+  return this;
+}
   
 describe('Middleware', function(){
 
@@ -30,7 +37,7 @@ describe('Middleware', function(){
       .get(done);
     })
     
-    it('should create an req', function(done){
+    it('should create a req', function(done){
       mdoq
         .use(function(req, res, next) {
           this.currentreq = this.req;
@@ -50,6 +57,17 @@ describe('Middleware', function(){
         expect(this.testing).to.equal(true);
         done();
       });
+    })
+    
+    it('should add all modifiers to the current context', function(done) {
+      expect(mdoq.modify).to.not.exist;
+      var tester = mdoq.use(testing);
+      expect(tester.modify).to.be.a('function');
+      
+      tester.modify(7).get(function (err, res) {
+        expect(this.num).to.equal(7);
+        done(err);
+      })
     })
     
     it('should execute an adhoc middleware', function(done){
