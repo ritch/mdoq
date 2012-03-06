@@ -30,7 +30,9 @@ describe('Proxy Server', function(){
   it('should listen', function(done) {
     var app = express.createServer(express.bodyParser());
     app.all('/test', faux.proxy());
-
+    app.all('/continue', faux.proxy(true), function (req, res) {
+      res.send(res.data);
+    });
     app.on('listening', function () {
       done();
     });
@@ -51,6 +53,16 @@ describe('Proxying', function(){
     var tdata = {foo:'bar', bat: 'baz'};
     
     http.use('/test').post(tdata, function (err, res) {
+      expect(res).to.eql(tdata);
+      
+      done(err);
+    })
+  })
+  
+  it('should still return when using continue', function(done) {
+    var tdata = {foo:'bar', bat: 'baz'};
+    
+    http.use('/continue').post(tdata, function (err, res) {
       expect(res).to.eql(tdata);
       
       done(err);

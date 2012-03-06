@@ -246,7 +246,8 @@ An object containing the `res.body` or `res.data`.
 
 **returns** *MiddlewareFunction(req, res, next, use)*
 
-A function that wraps all the current middleware. Useful for proxying data between servers, clients and other **mdoq** stacks.
+Returns a middleware wrapping that will execute the current stack. Useful for proxying data between servers, clients and other **mdoq** stacks.
+Will call `next(err)` if an `err` exists.
 
     var app = require('express').createServer();
       , db = mdoq.require('mdoq-mongodb')
