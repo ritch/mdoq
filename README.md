@@ -136,7 +136,7 @@ All methods in **mdoq** return an **mdoq** object (think jQuery).
 
 ---
 
-### mdoq.use(middleware | url)
+### mdoq.use(middleware | url | context)
 
 **url** *String*
 
@@ -148,6 +148,14 @@ Calling `use()` with urls allows separate execution contexts. This is useful for
 **middleware** *MiddlewareFunction(req, res, next, use)*
 
 A function to add to the middleware stack.
+
+**context** **Object**
+
+A separate **mdoq** object containing a middleware `Array` to be added to the current stack.
+
+  var db = mdoq.require('mdoq-mongodb').use('mongodb://localhost')
+    , cache = mdoq.require('my-cache-middleware')
+    , tweets = db.use('/tweets')
 
 **returns**
 
@@ -246,14 +254,14 @@ An object containing the `res.body` or `res.data`.
 
 **returns** *MiddlewareFunction(req, res, next, use)*
 
-Returns a middleware wrapping that will execute the current stack. Useful for proxying data between servers, clients and other **mdoq** stacks.
-Will call `next(err)` if an `err` exists.
+Returns a middleware wrapping that will execute the current stack. Useful for proxying data between servers and clients.
+The newly created middleware will call `next(err)` if an `err` exists.
 
     var app = require('express').createServer();
       , db = mdoq.require('mdoq-mongodb')
       , users = db.use('/users');
       
-    app.get('/users', users.proxy());
+    app.get('/users', users.proxy()); // proxy get requests to mongodb
 
 ---
 

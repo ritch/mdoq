@@ -84,4 +84,32 @@ describe('Proxying - use()', function(){
       done(err);
     })
   })
+  
+  it('should also be supported via addhoc middleware / end()', function(done) {
+    var simple = mdoq
+      .use(function (req, res, next) {
+        if(res.data) res.data.simple = 'bar';
+        next();
+      })
+      .use(function (req, res, next, en) {
+        setTimeout(function () {
+          if(res.data) res.data.bar = 'foo';
+          next();
+        }, 22);
+      })
+    ;
+    
+    var complex = mdoq.use(function (req, res, next, end) {
+      res.data = {complex:true};
+      end(simple);
+      next();
+    })
+    
+    complex.get(function (err, res) {
+      expect(res.complex).to.exist;
+      expect(res.simple).to.exist;
+      expect(res.bar).to.exist;
+      done(err);
+    })
+  })
 })
