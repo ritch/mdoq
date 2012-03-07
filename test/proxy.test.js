@@ -30,9 +30,6 @@ describe('Proxy Server', function(){
   it('should listen', function(done) {
     var app = express.createServer(express.bodyParser());
     app.all('/test', faux.proxy());
-    app.all('/continue', faux.proxy(true), function (req, res) {
-      res.send(res.data);
-    });
     app.on('listening', function () {
       done();
     });
@@ -58,13 +55,32 @@ describe('Proxying', function(){
       done(err);
     })
   })
-  
-  it('should still return when using continue', function(done) {
-    var tdata = {foo:'bar', bat: 'baz'};
+})
+
+describe('Proxying - use()', function(){
+  it('should support mdoq proxies', function(done) {
+    var simple = mdoq
+      .use(function (req, res, next) {
+        if(res.data) res.data.simple = 'bar';
+        next();
+      })
+      .use(function (req, res, next) {
+        setTimeout(function () {
+          if(res.data) res.data.bar = 'foo';
+          next();
+        }, 22);
+      })
+    ;
     
-    http.use('/continue').post(tdata, function (err, res) {
-      expect(res).to.eql(tdata);
-      
+    var complex = mdoq.use(function (req, res, next) {
+      res.data = {complex:true};
+      next();
+    })
+    
+    complex.use(simple).get(function (err, res) {
+      expect(res.complex).to.exist;
+      expect(res.simple).to.exist;
+      expect(res.bar).to.exist;
       done(err);
     })
   })
