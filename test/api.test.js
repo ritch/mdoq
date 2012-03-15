@@ -70,6 +70,13 @@ describe('Middleware', function(){
       })
     })
     
+    it('should add modifiers even when changing context', function(done) {
+      var o = require('mdoq').use(require('mdoq-http')).use(function (req, res, next) {});
+      
+      expect(o.pipe).to.be.a('function');
+      done();
+    })
+    
     it('should execute an adhoc middleware', function(done){
       mdoq
         .use(function(req, res, next) {
@@ -96,6 +103,26 @@ describe('Middleware', function(){
         .get(function() {
         })
       ;
+    })
+    
+    it('should be able to mix in other mdoq stacks', function() {
+      var mw1 = function () {
+        
+      };
+      
+      mw1.fun = function () {
+        
+      };
+      
+      var a = mdoq.use(function () {
+        
+      }).use(mw1);
+      
+      var b = mdoq.use(function () {
+        
+      }).use(a);
+      
+      expect(b.fun).to.be.a('function');
     })
   })
 })
