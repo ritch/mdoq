@@ -17,10 +17,23 @@ describe('Middleware', function(){
 
   describe('mdoq.use(middleware | url)', function(){
     it('should set the url', function(done){
-      var test = mdoq.use('protocol://host').use('/test');
+      var test = mdoq.use('protocol://host').use('/test').use(function (req, res, next) {
+        next();
+      });
       
       expect(test.url).to.equal('protocol://host/test');
-      done();
+      
+      test.use('/a').get(function (err, res) {
+        expect(this.req.url).to.equal('protocol://host/test/a');
+        test.use('/b').get(function (err, res) {
+          expect(this.req.url).to.equal('protocol://host/test/b');
+          test.exec({url: 'foo bar'}, function (err, res) {
+            expect(this.req.url).to.equal('foo bar');
+            done();
+          })
+        })
+      })
+      
     })
     
     it('should still have an req after executing async middleware', function(done){
